@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login and Registration Page</title>
+    <title>KGF HACKERS FORM</title>
     <style>
       body {
             font-family: Arial, sans-serif;
@@ -28,10 +28,31 @@
 
         h2 {
             text-align: center;
-        }
+            font-size: 25px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff007f, #7f00ff, #00ff7f, #ff007f); /* Gradient colors */
+            background-size: 300%;
+            color: transparent; /* Text color hidden to show gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradient 5s infinite linear;
+          }
+      
+          @keyframes gradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
+          }
+        
 
         form {
-            background-color: ;
+           
             padding: 20px;
             border-radius: 1px;
             box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
@@ -83,7 +104,7 @@
         }
 
         button:hover {
-            background-color: #2980b9;
+            background-color: #9b1919;
         }
 
         /* Animation for color changing */
@@ -151,6 +172,9 @@
             background-color: rgb(14, 4, 4);
             background-size: 100px;
         }
+        h2{
+
+        }
 
     </style>
 </head>
@@ -165,7 +189,8 @@
     </div>
 
     <div id="registerSection">
-        <h2>Register Form</h2>
+        <h2>Termux & Kali REGISTER</h2>
+        <h2>KGF HACKERS</h2>
         <form id="registerForm">
             <label for="registerUsername">Username:</label>
             <input type="text" id="registerUsername" name="registerUsername" required><br><br>
