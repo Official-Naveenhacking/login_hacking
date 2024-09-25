@@ -1,37 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login and Registration Page</title>
+    <title>KGF HACKERS FORM</title>
     <style>
-        body {
+      body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100%;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            animation: slideBg 30s infinite;
+            w
+
+            
         }
+
+        @keyframes slideBg {
+            0% { background-image: url('https://i.pinimg.com/736x/89/a7/17/89a71721bd5e0eabe187727fc8fed369.jpg'); }
+            33% { background-image: url('https://i.pinimg.com/564x/0b/53/78/0b5378a150b575eebac8b3ab13867a7c.jpg'); }
+            66% { background-image: url('https://i.pinimg.com/564x/41/0c/77/410c7795403a6b61bc468db21b9b443b.jpg'); }
+            100% { background-image: url('https://i.pinimg.com/736x/40/de/53/40de53a737ee48ad4b128d0de1863670.jpg'); }
+        }
+
+
         h2 {
             text-align: center;
-        }
+            font-size: 25px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff007f, #7f00ff, #00ff7f, #ff007f); /* Gradient colors */
+            background-size: 300%;
+            color: transparent; /* Text color hidden to show gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradient 5s infinite linear;
+          }
+      
+          @keyframes gradient {
+            0% {
+              background-position: 0% 50%;
+            }
+            50% {
+              background-position: 100% 50%;
+            }
+            100% {
+              background-position: 0% 50%;
+            }
+          }
+        
+
         form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
+           
+            padding: 40px;
+            border-radius: 1px;
             box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 400px;
+            backdrop-filter: blur(3px); 
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
+
         label, input {
             display: block;
             width: 100%;
             margin-bottom: 10px;
         }
+
         input[type="text"], input[type="password"] {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 3px;
+            width: 100%;
         }
+
         input[type="submit"] {
             background-color: #4CAF50;
             color: white;
@@ -41,13 +84,16 @@
             cursor: pointer;
             animation: colorChange 3s infinite;
         }
+
         input[type="submit"]:hover {
             background-color: #45a049;
         }
+
         p {
             text-align: center;
             color: red;
         }
+
         button {
             background-color: #3498db;
             color: white;
@@ -58,8 +104,9 @@
             width: 100%;
             margin-top: 10px;
         }
+
         button:hover {
-            background-color: #2980b9;
+            background-color: #9b1919;
         }
 
         /* Animation for color changing */
@@ -70,11 +117,88 @@
             75% { background-color: #e74c3c; }
             100% { background-color: #4CAF50; }
         }
+
+        /* Loading Spinner */
+        #loadingSpinner {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            border-right: 8px solid #f39c12;
+            border-bottom: 8px solid #e74c3c;
+            border-left: 8px solid #4CAF50;
+            width: 60px;
+            height: 60px;
+            animation: spin 1.5s linear infinite;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom Alert Box */
+        #alertBox {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            z-index: 10000;
+        }
+
+        #alertBox button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #alertBox button:hover {
+            background-color: #45a049;
+        }
+        label{
+            color: #dbd7d6;
+            background-color: rgb(14, 4, 4);
+            background-size: 100px;
+        }
+        h2{
+
+        }
+
     </style>
 </head>
 <body>
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner"></div>
+
+    <!-- Custom Alert Box -->
+    <div id="alertBox">
+        <p id="alertMessage"></p>
+        <button id="alertOkButton">OK</button>
+    </div>
+
+    <br>
     <div id="registerSection">
-        <h2>Register Form</h2>
+        <h2>Termux & Kali REGISTER</h2>
+        <h2>KGF HACKERS</h2>
+       
+       <br>
+       <br>
+       <br>
+       
         <form id="registerForm">
             <label for="registerUsername">Username:</label>
             <input type="text" id="registerUsername" name="registerUsername" required><br><br>
@@ -83,7 +207,7 @@
             <input type="submit" value="Register">
         </form>
         <p id="registerMessage"></p>
-        <button id="goToLogin">Already have an account? Login</button> <!-- Login button -->
+        <button id="goToLogin">Already have an account? Login</button>
     </div>
 
     <div id="loginSection" style="display: none;">
@@ -99,57 +223,96 @@
     </div>
 
     <script>
+        // Show and hide loading spinner
+        function showLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideLoadingSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
+
+        // Show custom alert box
+        function showAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('alertBox').style.display = 'block';
+        }
+
+        // Hide custom alert box
+        function hideAlert() {
+            document.getElementById('alertBox').style.display = 'none';
+        }
+
         // Register logic
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            showLoadingSpinner();
+
             const username = document.getElementById('registerUsername').value;
             const password = document.getElementById('registerPassword').value;
 
-            if (username && password) {
-                // Store credentials in localStorage
-                localStorage.setItem('username', username);
-                localStorage.setItem('password', password);
+            setTimeout(function() { // Simulating delay
+                if (username && password) {
+                    localStorage.setItem('username', username);
+                    localStorage.setItem('password', password);
 
-                document.getElementById('registerMessage').style.color = 'green';
-                document.getElementById('registerMessage').textContent = 'Registration successful! Now you can log in.';
+                    document.getElementById('registerMessage').style.color = 'green';
+                    document.getElementById('registerMessage').textContent = 'Registration successful!';
 
-                // Hide register form and show login form
-                document.getElementById('registerSection').style.display = 'none';
-                document.getElementById('loginSection').style.display = 'block';
-            } else {
-                document.getElementById('registerMessage').textContent = 'Please fill out all fields.';
-            }
+                    // Show success alert box
+                    showAlert('Registration successful! Now you can log in.');
+                    
+                    document.getElementById('registerSection').style.display = 'none';
+                    document.getElementById('loginSection').style.display = 'block';
+                } else {
+                    document.getElementById('registerMessage').textContent = 'Please fill out all fields.';
+                }
+
+                hideLoadingSpinner();
+            }, 2000); // Simulating a delay for loading
         });
 
         // Login logic
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
+            showLoadingSpinner();
+
             const username = document.getElementById('loginUsername').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Retrieve stored credentials from localStorage
-            const storedUsername = localStorage.getItem('username');
-            const storedPassword = localStorage.getItem('password');
+            setTimeout(function() { // Simulating delay
+                const storedUsername = localStorage.getItem('username');
+                const storedPassword = localStorage.getItem('password');
 
-            if (username === storedUsername && password === storedPassword) {
-                document.getElementById('loginMessage').style.color = 'green';
-                document.getElementById('loginMessage').textContent = 'Login successful! Redirecting...';
+                if (username === storedUsername && password === storedPassword) {
+                    document.getElementById('loginMessage').style.color = 'green';
+                    document.getElementById('loginMessage').textContent = 'Login successful!';
 
-                // Redirect after login (2 seconds delay)
-                setTimeout(function() {
-                    window.location.href = "https://example.com/dashboard"; // Replace with your page
-                }, 2000);
-            } else {
-                document.getElementById('loginMessage').textContent = 'Invalid username or password.';
-            }
+                    // Show success alert box
+                    showAlert('Login successful! Redirecting...');
+                    
+                    setTimeout(function() {
+                        window.location.href = "https://example.com/dashboard";
+                    }, 2000);
+                } else {
+                    document.getElementById('loginMessage').textContent = 'Invalid username or password.';
+                }
+
+                hideLoadingSpinner();
+            }, 2000); // Simulating a delay for loading
         });
 
         // Switch to login form
         document.getElementById('goToLogin').addEventListener('click', function() {
             document.getElementById('registerSection').style.display = 'none';
             document.getElementById('loginSection').style.display = 'block';
+        });
+
+        // Hide the custom alert box when OK is clicked
+        document.getElementById('alertOkButton').addEventListener('click', function() {
+            hideAlert();
         });
     </script>
 </body>
