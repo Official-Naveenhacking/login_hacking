@@ -217,6 +217,19 @@
             speakText('Voice is now enabled.');
         }
     });
+    const images = [
+    'https://img.freepik.com/free-photo/cyber-security-expert-working-with-technology-neon-lights_23-2151645579.jpg?t=st=1727798991~exp=1727802591~hmac=76964719f0fe59737ee2ea167b3c50392184091c2b1ae149b1a55b7d73facac6&w=360',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkMCTPOMxCmPL5mCwBke-B4ZtMniA5BEV7nA&s',
+    'https://img.freepik.com/premium-photo/portrait-girl-working-front-computer-screen-her-bedroom_579873-17804.jpg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzXqwldL8zjFRXbSAcbVrOqQavVLTERzZeXA&s',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4-dB_RuAv6H7Myuq6cAWsSVOmxLqDTbsJAVpa5aZRW70ma4dlat2b5vnD1DjKwnpcANg&usqp=CAU',
+    'https://cdn.pixabay.com/photo/2023/05/28/09/12/ai-generated-8023195_1280.jpg',
+];
+let currentImageIndex = 0;
+setInterval(() => {
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+    document.body.style.backgroundImage = `url(${images[currentImageIndex]})`;
+}, 3000);
     </script>
 
     <style>
@@ -239,7 +252,7 @@
 
     /* Background image slideshow */
     body {
-        background: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg') no-repeat center center/cover;
+        background: url('') no-repeat center center/cover;
         height: 100vh;
         font-family: Arial, sans-serif;
     }
@@ -293,16 +306,16 @@
     }
 
     button:hover {
-        background-color: #0056b3;
+        background-color: #b30923;
     }
 
     #deleteUserBtn {
-        background-color: #dc3545;
+        background-color: #1f00a7;
         margin-top: 1rem;
     }
 
     #deleteUserBtn:hover {
-        background-color: #c82333;
+        background-color: #c50d78;
     }
 
     /* Success modal styling */
@@ -357,8 +370,10 @@
     
 
     .voice-toggle:hover {
-        background-image: url(https://cdn.dribbble.com/users/1519660/screenshots/4813870/voiceover_icon.gif);
+        background-color: blue;
     }
+
+  
     </style>
 </body>
 </html>
