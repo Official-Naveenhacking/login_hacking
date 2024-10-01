@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KGF HACKERS</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,10 +15,16 @@
             <h2 id="form-title">Login</h2>
             <form id="authForm">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="email" id="username" placeholder="Gmail ID" required>
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <input type="checkbox" id="termsCheckbox" required>
+                    <label for="termsCheckbox">I have read and agree to the terms and conditions
+                    this site doesn't store your email and password only save your moblie local cookies so, don't worry about it!</label>
+                    <a href="" >MORE ABOUT</a>
                 </div>
                 <button type="submit" id="submitBtn">Login</button>
                 <button type="button" id="toggleFormBtn">Switch to Registration</button>
@@ -50,319 +55,385 @@
     </button>
 
     <script>
-    let voiceEnabled = true; // Track if voice is enabled
+      let voiceEnabled = true; // Track if voice is enabled
 
-    window.onload = function () {
-        const preloader = document.getElementById('preloader');
+window.onload = function () {
+    const preloader = document.getElementById('preloader');
+    setTimeout(() => {
+        preloader.style.display = 'none';
+    }, 2000);
+
+    // Speak welcome message when the website is loaded if voice is enabled
+    if (voiceEnabled) {
+        speakText("Welcome to the login and registration page. Please log in or register.");
+    }
+}
+
+const form = document.getElementById('authForm');
+const formTitle = document.getElementById('form-title');
+const toggleFormBtn = document.getElementById('toggleFormBtn');
+const submitBtn = document.getElementById('submitBtn');
+const successModal = document.getElementById('successModal');
+const successMessage = document.getElementById('successMessage');
+const deleteUserBtn = document.getElementById('deleteUserBtn');
+const voiceToggleButton = document.getElementById('voiceToggleButton');
+const voiceStatusText = document.getElementById('voiceStatusText');
+
+// Custom alert modal elements
+const customAlertModal = document.getElementById('customAlertModal');
+const customAlertMessage = document.getElementById('customAlertMessage');
+const customAlertOkButton = document.getElementById('customAlertOkButton');
+
+let isLoginForm = true;
+
+toggleFormBtn.addEventListener('click', () => {
+    isLoginForm = !isLoginForm;
+    formTitle.textContent = isLoginForm ? 'Login' : 'Register';
+    submitBtn.textContent = isLoginForm ? 'Login' : 'Register';
+    toggleFormBtn.textContent = isLoginForm ? 'Switch to Registration' : 'Switch to Login';
+});
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const termsCheckbox = document.getElementById('termsCheckbox').checked;
+
+    // Verify Gmail ID
+    if (!validateGmail(username)) {
+        showCustomAlert("Please enter a valid Gmail ID");
+        return;
+    }
+
+    // Check if terms are accepted
+    if (!termsCheckbox) {
+        showCustomAlert("You must agree to the terms and conditions");
+        return;
+    }
+
+    if (isLoginForm) {
+        loginUser(username, password);
+    } else {
+        registerUser(username, password);
+    }
+});
+
+deleteUserBtn.addEventListener('click', () => {
+    const username = document.getElementById('username').value;
+    if (localStorage.getItem(username)) {
+        localStorage.removeItem(username);
+        showCustomAlert(`User '${username}' has been deleted.`);
+        if (voiceEnabled) {
+            speakText('User has been deleted successfully');
+        }
+    } else {
+        showCustomAlert('User does not exist.');
+        if (voiceEnabled) {
+            speakText('User does not exist');
+        }
+    }
+});
+
+function loginUser(username, password) {
+    const user = JSON.parse(localStorage.getItem(username));
+    if (user && user.password === password) {
+        showSuccessMessage('Login successful!', true); // Redirect after login
+        if (voiceEnabled) {
+            speakText('Login successful, please wait. You will be redirected shortly!');
+        }
+    } else {
+        showCustomAlert('Invalid username or password');
+        if (voiceEnabled) {
+            speakText('Invalid username or password. Please enter the correct password.');
+        }
+    }
+}
+
+function registerUser(username, password) {
+    if (localStorage.getItem(username)) {
+        showCustomAlert('User already exists!');
+        if (voiceEnabled) {
+            speakText('User already registered. Please delete the account.');
+        }
+    } else {
+        const user = { username, password };
+        localStorage.setItem(username, JSON.stringify(user));
+        showSuccessMessage('Registration successful!', false); // No redirect after registration
+        if (voiceEnabled) {
+            speakText('Registration successful. You can now log in directly!');
+        }
+    }
+}
+
+// Validate Gmail ID
+function validateGmail(email) {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return gmailRegex.test(email);
+}
+
+// Custom Alert Function
+function showCustomAlert(message) {
+    customAlertMessage.textContent = message;
+    customAlertModal.style.display = 'flex';
+
+    customAlertOkButton.onclick = () => {
+        customAlertModal.style.display = 'none';
+    };
+}
+
+function showSuccessMessage(message, redirect = true) {
+    successMessage.textContent = message;
+    successModal.style.display = 'flex';
+
+    if (redirect) {
+        successMessage.textContent = "Login successful! Please wait...";
+        document.getElementById('spinner').style.display = 'block';
+
         setTimeout(() => {
-            preloader.style.display = 'none';
-        }, 2000);
-
-        // Speak welcome message when the website is loaded if voice is enabled
-        if (voiceEnabled) {
-            speakText("Welcome to the login and registration page. Please log in or register.");
-        }
+            document.getElementById('spinner').style.display = 'none';
+            successModal.style.display = 'none';
+            window.location.href = 'https://www.example.com'; // Replace with your redirection URL
+        }, 10000); // 10 seconds delay for login
+    } else {
+        // Close modal after 3 seconds for registration success
+        setTimeout(() => {
+            successModal.style.display = 'none';
+        }, 3000); // 3 seconds delay for registration
     }
+}
 
-    const form = document.getElementById('authForm');
-    const formTitle = document.getElementById('form-title');
-    const toggleFormBtn = document.getElementById('toggleFormBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const successModal = document.getElementById('successModal');
-    const successMessage = document.getElementById('successMessage');
-    const deleteUserBtn = document.getElementById('deleteUserBtn');
-    const voiceToggleButton = document.getElementById('voiceToggleButton');
-    const voiceStatusText = document.getElementById('voiceStatusText');
+// Web Speech API - Speak Function
+function speakText(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = 'en-US'; // Set the language, adjust if needed
+    window.speechSynthesis.speak(speech);
+}
 
-    // Custom alert modal elements
-    const customAlertModal = document.getElementById('customAlertModal');
-    const customAlertMessage = document.getElementById('customAlertMessage');
-    const customAlertOkButton = document.getElementById('customAlertOkButton');
-
-    let isLoginForm = true;
-
-    toggleFormBtn.addEventListener('click', () => {
-        isLoginForm = !isLoginForm;
-        formTitle.textContent = isLoginForm ? 'Login' : 'Register';
-        submitBtn.textContent = isLoginForm ? 'Login' : 'Register';
-        toggleFormBtn.textContent = isLoginForm ? 'Switch to Registration' : 'Switch to Login';
-    });
-
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        if (isLoginForm) {
-            loginUser(username, password);
-        } else {
-            registerUser(username, password);
-        }
-    });
-
-    deleteUserBtn.addEventListener('click', () => {
-        const username = document.getElementById('username').value;
-        if (localStorage.getItem(username)) {
-            localStorage.removeItem(username);
-            showCustomAlert(`User '${username}' has been deleted.`);
-            if (voiceEnabled) {
-                speakText('user has been deleted successfully');
-            }
-        } else {
-            showCustomAlert('User does not exist.');
-            if (voiceEnabled) {
-                speakText('User does not exist');
-            }
-        }
-    });
-
-    function loginUser(username, password) {
-        const user = JSON.parse(localStorage.getItem(username));
-        if (user && user.password === password) {
-            showSuccessMessage('Login successful!', true); // Redirect after login
-            if (voiceEnabled) {
-                speakText('Login successful, please wait. You will be redirected shortly!');
-            }
-        } else {
-            showCustomAlert('Invalid username or password');
-            if (voiceEnabled) {
-                speakText('Invalid username and password enter correct password');
-            }
-        }
+// Voice toggle button functionality
+voiceToggleButton.addEventListener('click', () => {
+    voiceEnabled = !voiceEnabled;
+    voiceStatusText.textContent = voiceEnabled ? 'Voice On' : 'Voice Off';
+    voiceToggleButton.style.backgroundColor = voiceEnabled ? '#28a745' : '#dc3545'; // Green for on, red for off
+    if (voiceEnabled) {
+        speakText('Voice is now enabled.');
     }
+});
 
-    function registerUser(username, password) {
-        if (localStorage.getItem(username)) {
-            showCustomAlert('User already exists!',false);
-            if (voiceEnabled) {
-                speakText('user already register you delete an Account');
-            }
-        } else {
-            const user = { username, password };
-            localStorage.setItem(username, JSON.stringify(user));
-            showSuccessMessage('Registration successful!', false); // No redirect after registration
-            if (voiceEnabled) {
-                speakText('Registration successful. You can now log in directly!');
-            }
-        }
-    }
+// Background images slideshow functionality
+const images = [
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbPpdDNW164BzkeWGncCCLJt7AOlvTV-zpYmnFKCwTUrYvLVWC5169VLCH&s=10',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRwSeRtlznkaZpC4HcCrhHhCmc9aA_WEAA6A&usqp=CAU',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKFQABDfRpOfWdYlC1UtFPN7hUpoK3noIgwA&usqp=CAU',
+    // Add more image URLs as needed
+];
 
-    // Custom Alert Function
-    function showCustomAlert(message) {
-        customAlertMessage.textContent = message;
-        customAlertModal.style.display = 'flex';
+let currentImageIndex = 0;
+function changeBackgroundImage() {
+    document.body.style.backgroundImage = `url(${images[currentImageIndex]})`;
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+}
 
-        customAlertOkButton.addEventListener('click', () => {
-            customAlertModal.style.display = 'none';
-        });
-    }
+// Change background image every 5 seconds
+setInterval(changeBackgroundImage, 5000);
 
-    function showSuccessMessage(message, redirect = true) {
-        successMessage.textContent = message;
-        successModal.style.display = 'flex';
-
-        if (redirect) {
-            successMessage.textContent = "Login successful! Please wait...";
-            document.getElementById('spinner').style.display = 'block';
-
-            setTimeout(() => {
-                document.getElementById('spinner').style.display = 'none';
-                successModal.style.display = 'none';
-                window.location.href = 'https://www.example.com'; // Replace with your redirection URL
-            }, 10000); // 10 seconds delay for login
-        } else {
-            // Close modal after 3 seconds for registration success
-            setTimeout(() => {
-                successModal.style.display = 'none';
-            }, 3000); // 3 seconds delay for registration
-        }
-    }
-
-    // Web Speech API - Speak Function
-    function speakText(text) {
-        const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = 'en-US'; // Set the language, adjust if needed
-        window.speechSynthesis.speak(speech);
-    }
-
-    // Voice toggle button functionality
-    voiceToggleButton.addEventListener('click', () => {
-        voiceEnabled = !voiceEnabled;
-        voiceStatusText.textContent = voiceEnabled ? 'Voice On' : 'Voice Off';
-        voiceToggleButton.style.backgroundColor = voiceEnabled ? '#28a745' : '#dc3545'; // Green for on, red for off
-        if (voiceEnabled) {
-            speakText('Voice is now enabled.');
-        }
-    });
+// Initially set the first background image
+changeBackgroundImage();
     </script>
-
     <style>
-    /* Preloader */
-    #preloader {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #000;
-        z-index: 9999;
-        animation: fadeOut 2s forwards;
-    }
+      /* Preloader */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #fff; /* Preloader background color */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-    /* Preloader animation */
-    @keyframes fadeOut {
-        100% { opacity: 0; visibility: hidden; }
-    }
+#preloader::before {
+    content: "";
+    width: 40px;
+    height: 40px;
+    border: 5px solid #ccc;
+    border-top: 5px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
 
-    /* Background image slideshow */
-    body {
-        background: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg') no-repeat center center/cover;
-        height: 100vh;
-        margin: 0;
-        font-family: 'Arial', sans-serif;
-        animation: slideshow 10s infinite;
+/* Keyframes for preloader spinning animation */
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
     }
-
-    @keyframes slideshow {
-        0% { background-image: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg'); }
-        33% { background-image: url('https://i.pinimg.com/736x/c4/95/e6/c495e6c05ee66562e0f930a4f8c7da4a.jpg'); }
-        66% { background-image: url('https://i.pinimg.com/736x/11/08/f8/1108f803402df926aba9167ab45bf6e1.jpg'); }
-        100% { background-image: url('https://i.pinimg.com/originals/39/e3/75/39e375b4ee2d40b274687081d9c64290.jpg'); }
+    
+    100% {
+        transform: rotate(360deg);
     }
+}
 
-    /* Form container */
-    .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        z-index: 1;
-    }
+/* Modal for success message */
+#successModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
-    .form-box {
-        background-color: rgba(255,255, 255, 0.9);
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        text-align: center;
-    }
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    position: relative;
+}
 
-    input[type="text"], input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
+#spinner {
+    display: none;
+    width: 30px;
+    height: 30px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 10px auto;
+}
 
-    button {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
+/* Custom Alert Modal */
+#customAlertModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.custom-modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+#customAlertOkButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    animation: colorChange 2s infinite;
+}
+
+/* Animated color change for the OK button */
+@keyframes colorChange {
+    0% {
         background-color: #28a745;
-        color: #fff;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        animation: changeColor 2s infinite alternate;
     }
-
-    button:hover {
-        background-color: #218838;
+    50% {
+        background-color: #ffc107;
     }
-
-    #toggleFormBtn {
-        background-color: #007bff;
-        animation: changeColor 3s infinite alternate;
+    100% {
+        background-color: #dc3545;
     }
+}
 
-    #toggleFormBtn:hover {
-        background-color: #0056b3;
-    }
+#voiceToggleButton {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-    /* Keyframe for button color animation */
-    @keyframes changeColor {
-        10% { background-color: #070ac9; }
-        50% { background-color: #1acc4f; }
-        100% { background-color: #ff5733; }
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-size: cover;
+    background-position: center;
+    transition: background-image 1s ease-in-out;
+}
 
-    /* Success Modal */
-    #successModal, #customAlertModal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: none;
-        justify-content: center;
-        align-items: center;
-    }
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-    .modal-content, .custom-modal-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 5px;
-        text-align: center;
-    }
+.form-box {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
 
-    /* Spinner */
-    #spinner {
-        border: 5px solid #ad2121;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-        display: none;
-        margin: 20px auto;
-    }
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
-    /* Spinner animation */
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+input[type="checkbox"] {
+    margin-right: 5px;
+}
 
-    /* Voice Toggle Button */
-    .voice-toggle {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #28a745;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 50px;
-        transition: background-color 0.3s ease;
-        animation: toggleColor 2s infinite alternate;
-    }
+button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-    /* Keyframe for voice toggle color animation */
-    @keyframes toggleColor {
-        0% { background-color: #28a745; }
-        50% { background-color: #ffca28; }
-        100% { background-color: #dc3545; }
-    }
+button:hover {
+    background-color: #0056b3;
+}
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .modal-content {
-            width: 90%;
-        }
+/* Toggle form button */
+#toggleFormBtn {
+    background-color: #6c757d;
+}
 
-        .form-box {
-            width: 90%;
-        }
+#toggleFormBtn:hover {
+    background-color: #5a6268;
+}
 
-        .voice-toggle {
-            bottom: 10px;
-            right: 10px;
-        }
-    }
+/* Delete User button */
+#deleteUserBtn {
+    background-color: #dc3545;
+}
+
+#deleteUserBtn:hover {
+    background-color: #c82333;
+}
     </style>
 </body>
 </html>
