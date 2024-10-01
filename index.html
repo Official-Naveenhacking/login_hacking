@@ -16,10 +16,14 @@
             <h2 id="form-title">Login</h2>
             <form id="authForm">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="email" id="username" placeholder="Gmail ID" required>
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <input type="checkbox" id="termsCheckbox" required>
+                    <label for="termsCheckbox">I have read and agree to the terms and conditions</label>
                 </div>
                 <button type="submit" id="submitBtn">Login</button>
                 <button type="button" id="toggleFormBtn">Switch to Registration</button>
@@ -92,6 +96,19 @@
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const termsCheckbox = document.getElementById('termsCheckbox').checked;
+
+        // Verify Gmail ID
+        if (!validateGmail(username)) {
+            showCustomAlert("Please enter a valid Gmail ID");
+            return;
+        }
+
+        // Check if terms are accepted
+        if (!termsCheckbox) {
+            showCustomAlert("You must agree to the terms and conditions");
+            return;
+        }
 
         if (isLoginForm) {
             loginUser(username, password);
@@ -106,7 +123,7 @@
             localStorage.removeItem(username);
             showCustomAlert(`User '${username}' has been deleted.`);
             if (voiceEnabled) {
-                speakText('user has been deleted successfully');
+                speakText('User has been deleted successfully');
             }
         } else {
             showCustomAlert('User does not exist.');
@@ -126,16 +143,16 @@
         } else {
             showCustomAlert('Invalid username or password');
             if (voiceEnabled) {
-                speakText('Invalid username and password enter correct password');
+                speakText('Invalid username and password. Please enter the correct password.');
             }
         }
     }
 
     function registerUser(username, password) {
         if (localStorage.getItem(username)) {
-            showCustomAlert('User already exists!',false);
+            showCustomAlert('User already exists!');
             if (voiceEnabled) {
-                speakText('user already register you delete an Account');
+                speakText('User already registered. Please delete the account.');
             }
         } else {
             const user = { username, password };
@@ -145,6 +162,12 @@
                 speakText('Registration successful. You can now log in directly!');
             }
         }
+    }
+
+    // Validate Gmail ID
+    function validateGmail(email) {
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        return gmailRegex.test(email);
     }
 
     // Custom Alert Function
@@ -218,16 +241,7 @@
     body {
         background: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg') no-repeat center center/cover;
         height: 100vh;
-        margin: 0;
-        font-family: 'Arial', sans-serif;
-        animation: slideshow 10s infinite;
-    }
-
-    @keyframes slideshow {
-        0% { background-image: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg'); }
-        33% { background-image: url('https://i.pinimg.com/736x/c4/95/e6/c495e6c05ee66562e0f930a4f8c7da4a.jpg'); }
-        66% { background-image: url('https://i.pinimg.com/736x/11/08/f8/1108f803402df926aba9167ab45bf6e1.jpg'); }
-        100% { background-image: url('https://i.pinimg.com/originals/39/e3/75/39e375b4ee2d40b274687081d9c64290.jpg'); }
+        font-family: Arial, sans-serif;
     }
 
     /* Form container */
@@ -235,133 +249,114 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        z-index: 1;
+        height: 100%;
     }
 
+    /* Form box styling */
     .form-box {
-        background-color: rgba(255,255, 255, 0.9);
-        padding: 30px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
         border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         text-align: center;
+        max-width: 400px;
+        width: 100%;
     }
 
-    input[type="text"], input[type="password"] {
+    .input-group {
+        margin-bottom: 1rem;
+    }
+
+    input[type="email"],
+    input[type="password"] {
         width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid #ccc;
+        padding: 0.75rem;
         border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    input[type="checkbox"] {
+        margin-right: 0.5rem;
     }
 
     button {
-        padding: 10px 20px;
+        padding: 0.75rem 1.5rem;
         border: none;
         border-radius: 5px;
-        background-color: #28a745;
-        color: #fff;
-        font-size: 16px;
+        background-color: #007bff;
+        color: white;
+        font-size: 1rem;
         cursor: pointer;
-        transition: background-color 0.3s;
-        animation: changeColor 2s infinite alternate;
+        margin-top: 1rem;
+        width: 100%;
     }
 
     button:hover {
-        background-color: #218838;
-    }
-
-    #toggleFormBtn {
-        background-color: #007bff;
-        animation: changeColor 3s infinite alternate;
-    }
-
-    #toggleFormBtn:hover {
         background-color: #0056b3;
     }
 
-    /* Keyframe for button color animation */
-    @keyframes changeColor {
-        10% { background-color: #070ac9; }
-        50% { background-color: #1acc4f; }
-        100% { background-color: #ff5733; }
+    #deleteUserBtn {
+        background-color: #dc3545;
+        margin-top: 1rem;
     }
 
-    /* Success Modal */
+    #deleteUserBtn:hover {
+        background-color: #c82333;
+    }
+
+    /* Success modal styling */
     #successModal, #customAlertModal {
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: none;
+        background-color: rgba(0, 0, 0, 0.8);
         justify-content: center;
         align-items: center;
+        z-index: 1000;
     }
 
     .modal-content, .custom-modal-content {
         background-color: #fff;
-        padding: 20px;
-        border-radius: 5px;
+        padding: 2rem;
+        border-radius: 10px;
         text-align: center;
+        max-width: 400px;
+        width: 100%;
     }
 
-    /* Spinner */
     #spinner {
-        border: 5px solid #ad2121;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
         width: 50px;
         height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #007bff;
+        border-radius: 50%;
         animation: spin 1s linear infinite;
-        display: none;
-        margin: 20px auto;
     }
 
-    /* Spinner animation */
     @keyframes spin {
-        0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
 
-    /* Voice Toggle Button */
+    /* Voice toggle button */
     .voice-toggle {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
+        bottom: 1rem;
+        right: 1rem;
+        padding: 0.75rem;
+        border-radius: 50%;
         background-color: #28a745;
-        border: none;
         color: white;
-        padding: 10px 20px;
-        font-size: 16px;
+        border: none;
+        font-size: 1rem;
         cursor: pointer;
-        border-radius: 50px;
-        transition: background-color 0.3s ease;
-        animation: toggleColor 2s infinite alternate;
     }
 
-    /* Keyframe for voice toggle color animation */
-    @keyframes toggleColor {
-        0% { background-color: #28a745; }
-        50% { background-color: #ffca28; }
-        100% { background-color: #dc3545; }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .modal-content {
-            width: 90%;
-        }
-
-        .form-box {
-            width: 90%;
-        }
-
-        .voice-toggle {
-            bottom: 10px;
-            right: 10px;
-        }
+    .voice-toggle:hover {
+        background-color: #218838;
     }
     </style>
 </body>
