@@ -16,14 +16,16 @@
             <h2 id="form-title">Login</h2>
             <form id="authForm">
                 <div class="input-group">
-                    <input type="email" id="username" placeholder="Gmail ID" required>
+                    <input type="email" id="email" placeholder="Gmail ID" required>
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" placeholder="Password" required>
                 </div>
                 <div class="input-group">
-                    <input type="checkbox" id="termsCheckbox" required>
-                    <label for="termsCheckbox">I have read and agree to the terms and conditions</label>
+                    <label>
+                        <input type="checkbox" id="conditionsCheck" required>
+                        I have read all conditions
+                    </label>
                 </div>
                 <button type="submit" id="submitBtn">Login</button>
                 <button type="button" id="toggleFormBtn">Switch to Registration</button>
@@ -50,11 +52,11 @@
 
     <!-- Voice Toggle Button -->
     <button id="voiceToggleButton" class="voice-toggle">
-        <img id="voiceIcon" src="https://img.icons8.com/ios-filled/50/ffffff/voice.png" alt="Voice Icon">
+        <span id="voiceStatusText">Voice On</span>
     </button>
 
     <script>
-    let voiceEnabled = true;
+    let voiceEnabled = true; // Track if voice is enabled
 
     window.onload = function () {
         const preloader = document.getElementById('preloader');
@@ -66,18 +68,6 @@
         if (voiceEnabled) {
             speakText("Welcome to the login and registration page. Please log in or register.");
         }
-
-        // Background slideshow
-        const images = [
-            'https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg',
-            'https://www.w3schools.com/w3images/fjords.jpg',
-            'https://www.w3schools.com/w3images/lights.jpg'
-        ];
-        let currentImageIndex = 0;
-        setInterval(() => {
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-            document.body.style.backgroundImage = `url(${images[currentImageIndex]})`;
-        }, 3000);
     }
 
     const form = document.getElementById('authForm');
@@ -88,7 +78,12 @@
     const successMessage = document.getElementById('successMessage');
     const deleteUserBtn = document.getElementById('deleteUserBtn');
     const voiceToggleButton = document.getElementById('voiceToggleButton');
-    const voiceIcon = document.getElementById('voiceIcon');
+    const voiceStatusText = document.getElementById('voiceStatusText');
+
+    // Custom alert modal elements
+    const customAlertModal = document.getElementById('customAlertModal');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+    const customAlertOkButton = document.getElementById('customAlertOkButton');
 
     let isLoginForm = true;
 
@@ -101,56 +96,73 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const termsCheckbox = document.getElementById('termsCheckbox').checked;
+        const conditionsCheck = document.getElementById('conditionsCheck').checked;
 
-        if (!validateGmail(username)) {
-            showCustomAlert("Please enter a valid Gmail ID");
-            return;
-        }
-
-        if (!termsCheckbox) {
-            showCustomAlert("You must agree to the terms and conditions");
+        if (!conditionsCheck) {
+            showCustomAlert('You must read and accept the conditions.');
+            if (voiceEnabled) {
+                speakText('You must read and accept the conditions.');
+            }
             return;
         }
 
         if (isLoginForm) {
-            loginUser(username, password);
+            loginUser(email, password);
         } else {
-            registerUser(username, password);
+            registerUser(email, password);
         }
     });
 
     deleteUserBtn.addEventListener('click', () => {
-        const username = document.getElementById('username').value;
-        if (localStorage.getItem(username)) {
-            localStorage.removeItem(username);
-            showCustomAlert(`User '${username}' has been deleted.`);
+        const email = document.getElementById('email').value;
+        if (localStorage.getItem(email)) {
+            localStorage.removeItem(email);
+            showCustomAlert(User '${email}' has been deleted.);
             if (voiceEnabled) {
-                speakText('User has been deleted successfully');
+                speakText('User has been deleted successfully.');
             }
         } else {
             showCustomAlert('User does not exist.');
             if (voiceEnabled) {
-                speakText('User does not exist');
+                speakText('User does not exist.');
             }
         }
     });
 
-    voiceToggleButton.addEventListener('click', () => {
-        voiceEnabled = !voiceEnabled;
-        voiceIcon.src = voiceEnabled ? 'https://img.icons8.com/ios-filled/50/ffffff/voice.png' : 'https://img.icons8.com/ios-filled/50/ffffff/mute.png';
-        if (voiceEnabled) {
-            speakText('Voice is now enabled.');
+    function loginUser(email, password) {
+        const user = JSON.parse(localStorage.getItem(email));
+        if (user && user.password === password) {
+            showSuccessMessage('Login successful!', true); // Redirect after login
+            if (voiceEnabled) {
+                speakText('Login successful, please wait. You will be redirected shortly!');
+            }
+        } else {
+            showCustomAlert('Invalid Gmail ID or password.');
+            if (voiceEnabled) {
+                speakText('Invalid Gmail ID and password, please enter the correct details.');
+            }
         }
-    });
-
-    function validateGmail(email) {
-        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-        return gmailRegex.test(email);
     }
 
+    function registerUser(email, password) {
+        if (localStorage.getItem(email)) {
+            showCustomAlert('User already exists!');
+            if (voiceEnabled) {
+                speakText('User already registered. You can delete the account if needed.');
+            }
+        } else {
+            const user = { email, password };
+            localStorage.setItem(email, JSON.stringify(user));
+            showSuccessMessage('Registration successful!', false); // No redirect after registration
+            if (voiceEnabled) {
+                speakText('Registration successful. You can now log in directly!');
+            }
+        }
+    }
+
+    // Custom Alert Function
     function showCustomAlert(message) {
         customAlertMessage.textContent = message;
         customAlertModal.style.display = 'flex';
@@ -160,11 +172,43 @@
         });
     }
 
+    function showSuccessMessage(message, redirect = true) {
+        successMessage.textContent = message;
+        successModal.style.display = 'flex';
+
+        if (redirect) {
+            successMessage.textContent = "Login successful! Please wait...";
+            document.getElementById('spinner').style.display = 'block';
+
+            setTimeout(() => {
+                document.getElementById('spinner').style.display = 'none';
+                successModal.style.display = 'none';
+                window.location.href = 'https://www.example.com'; // Replace with your redirection URL
+            }, 10000); // 10 seconds delay for login
+        } else {
+            // Close modal after 3 seconds for registration success
+            setTimeout(() => {
+                successModal.style.display = 'none';
+            }, 3000); // 3 seconds delay for registration
+        }
+    }
+
+    // Web Speech API - Speak Function
     function speakText(text) {
         const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = 'en-US';
+        speech.lang = 'en-US'; // Set the language, adjust if needed
         window.speechSynthesis.speak(speech);
     }
+
+    // Voice toggle button functionality
+    voiceToggleButton.addEventListener('click', () => {
+        voiceEnabled = !voiceEnabled;
+        voiceStatusText.textContent = voiceEnabled ? 'Voice On' : 'Voice Off';
+        voiceToggleButton.style.backgroundColor = voiceEnabled ? '#28a745' : '#dc3545'; // Green for on, red for off
+        if (voiceEnabled) {
+            speakText('Voice is now enabled.');
+        }
+    });
     </script>
 
     <style>
@@ -180,131 +224,123 @@
         animation: fadeOut 2s forwards;
     }
 
+    /* Preloader animation */
     @keyframes fadeOut {
         100% { opacity: 0; visibility: hidden; }
     }
 
+    /* Background image slideshow */
     body {
-        background-size: cover;
-        background-position: center;
+        background: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg') no-repeat center center/cover;
         height: 100vh;
-        font-family: Arial, sans-serif;
-        transition: background-image 1s ease-in-out;
+        margin: 0;
+        font-family: 'Arial', sans-serif;
+        animation: slideshow 10s infinite;
     }
 
+    @keyframes slideshow {
+        0% { background-image: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg'); }
+        50% { background-image: url('https://example.com/another-image.jpg'); } /* Add more images as needed */
+        100% { background-image: url('https://i.pinim.com/originals/d8//d84230b86388b80d3989f14b3631ba49.jpg'); }
+    }
+
+    /* Container styles */
     .container {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100%;
+        height: 100vh;
     }
 
     .form-box {
         background: rgba(255, 255, 255, 0.9);
-        padding: 2rem;
+        padding: 20px;
         border-radius: 10px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        width: 300px;
         text-align: center;
-        max-width: 400px;
-        width: 100%;
     }
 
     .input-group {
-        margin-bottom: 1rem;
+        margin: 10px 0;
     }
 
-    input[type="email"], input[type="password"] {
+    input[type="email"],
+    input[type="password"] {
         width: 100%;
-        padding: 0.75rem;
-        border-radius: 5px;
+        padding: 10px;
         border: 1px solid #ccc;
-        font-size: 1rem;
-    }
-
-    input[type="checkbox"] {
-        margin-right: 0.5rem;
+        border-radius: 5px;
+        font-size: 14px;
     }
 
     button {
-        padding: 0.75rem 1.5rem;
+        padding: 10px;
         border: none;
         border-radius: 5px;
         background-color: #007bff;
         color: white;
-        font-size: 1rem;
+        font-size: 16px;
         cursor: pointer;
-        margin-top: 1rem;
-        width: 100%;
-        transition: background-color 0.5s ease;
+        transition: background-color 0.3s;
     }
 
     button:hover {
         background-color: #0056b3;
     }
 
-    #deleteUserBtn {
-        background-color: #dc3545;
-        margin-top: 1rem;
-    }
-
-    #deleteUserBtn:hover {
-        background-color: #c82333;
-    }
-
-    #successModal, #customAlertModal {
+    /* Modal styles */
+    #successModal,
+    #customAlertModal {
         display: none;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
+        background-color: rgba(0, 0, 0, 0.5);
         justify-content: center;
         align-items: center;
-        z-index: 1000;
+        z-index: 10000;
     }
 
-    .modal-content, .custom-modal-content {
-        background-color: #fff;
-        padding: 2rem;
+    .modal-content,
+    .custom-modal-content {
+        background: white;
+        padding: 20px;
         border-radius: 10px;
         text-align: center;
-        max-width: 400px;
-        width: 100%;
+        position: relative;
     }
 
     #spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #007bff;
+        display: none;
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3498db; /* Blue */
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+        margin: auto;
     }
 
     @keyframes spin {
+        0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
 
     .voice-toggle {
         position: fixed;
-        top: 1rem;
-        right: 1rem;
-        padding: 1rem;
-        border-radius: 50%;
-        background-color: #28a745;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px;
         border: none;
+        border-radius: 5px;
+        background-color: #28a745; /* Green */
+        color: white;
+        font-size: 16px;
         cursor: pointer;
-        transition: background-color 0.5s ease;
-    }
-
-    .voice-toggle img {
-        width: 30px;
-        height: 30px;
-    }
-
-    .voice-toggle:hover {
-        background-color: #218838;
+        z-index: 10000;
     }
     </style>
 </body>
