@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KGF HACKERS</title>
+    <title>Login & Registration with Custom Alert and Voice</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,10 +16,14 @@
             <h2 id="form-title">Login</h2>
             <form id="authForm">
                 <div class="input-group">
-                    <input type="text" id="username" placeholder="Username" required>
+                    <input type="email" id="email" placeholder="Gmail ID" required>
                 </div>
                 <div class="input-group">
                     <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <input type="checkbox" id="termsCheckbox" required>
+                    <label for="termsCheckbox">I have read all conditions</label>
                 </div>
                 <button type="submit" id="submitBtn">Login</button>
                 <button type="button" id="toggleFormBtn">Switch to Registration</button>
@@ -44,24 +48,15 @@
         </div>
     </div>
 
-    <!-- Voice Toggle Button -->
-    <button id="voiceToggleButton" class="voice-toggle">
-        <span id="voiceStatusText">Voice On</span>
-    </button>
-
     <script>
-    let voiceEnabled = true; // Track if voice is enabled
-
     window.onload = function () {
         const preloader = document.getElementById('preloader');
         setTimeout(() => {
             preloader.style.display = 'none';
         }, 2000);
 
-        // Speak welcome message when the website is loaded if voice is enabled
-        if (voiceEnabled) {
-            speakText("Welcome to the login and registration page. Please log in or register.");
-        }
+        // Speak welcome message when the website is loaded
+        speakText("Welcome to the login and registration page. Please log in or register.");
     }
 
     const form = document.getElementById('authForm');
@@ -71,8 +66,6 @@
     const successModal = document.getElementById('successModal');
     const successMessage = document.getElementById('successMessage');
     const deleteUserBtn = document.getElementById('deleteUserBtn');
-    const voiceToggleButton = document.getElementById('voiceToggleButton');
-    const voiceStatusText = document.getElementById('voiceStatusText');
 
     // Custom alert modal elements
     const customAlertModal = document.getElementById('customAlertModal');
@@ -90,60 +83,51 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const termsCheckbox = document.getElementById('termsCheckbox');
+
+        // Check if the terms checkbox is checked
+        if (!termsCheckbox.checked) {
+            showCustomAlert('You must agree to the terms and conditions.');
+            return;
+        }
 
         if (isLoginForm) {
-            loginUser(username, password);
+            loginUser(email, password);
         } else {
-            registerUser(username, password);
+            registerUser(email, password);
         }
     });
 
     deleteUserBtn.addEventListener('click', () => {
-        const username = document.getElementById('username').value;
-        if (localStorage.getItem(username)) {
-            localStorage.removeItem(username);
-            showCustomAlert(`User '${username}' has been deleted.`);
-            if (voiceEnabled) {
-                speakText('user has been deleted successfully');
-            }
+        const email = document.getElementById('email').value;
+        if (localStorage.getItem(email)) {
+            localStorage.removeItem(email);
+            showCustomAlert(`User '${email}' has been deleted.`);
         } else {
             showCustomAlert('User does not exist.');
-            if (voiceEnabled) {
-                speakText('User does not exist');
-            }
         }
     });
 
-    function loginUser(username, password) {
-        const user = JSON.parse(localStorage.getItem(username));
+    function loginUser(email, password) {
+        const user = JSON.parse(localStorage.getItem(email));
         if (user && user.password === password) {
             showSuccessMessage('Login successful!', true); // Redirect after login
-            if (voiceEnabled) {
-                speakText('Login successful, please wait. You will be redirected shortly!');
-            }
+            speakText('Login successful, please wait! You will be redirected.');
         } else {
-            showCustomAlert('Invalid username or password');
-            if (voiceEnabled) {
-                speakText('Invalid username and password enter correct password');
-            }
+            showCustomAlert('Invalid email or password.');
         }
     }
 
-    function registerUser(username, password) {
-        if (localStorage.getItem(username)) {
-            showCustomAlert('User already exists!',false);
-            if (voiceEnabled) {
-                speakText('user already register you delete an Account');
-            }
+    function registerUser(email, password) {
+        if (localStorage.getItem(email)) {
+            showCustomAlert('User already exists!');
         } else {
-            const user = { username, password };
-            localStorage.setItem(username, JSON.stringify(user));
+            const user = { email, password };
+            localStorage.setItem(email, JSON.stringify(user));
             showSuccessMessage('Registration successful!', false); // No redirect after registration
-            if (voiceEnabled) {
-                speakText('Registration successful. You can now log in directly!');
-            }
+            speakText('Registration successful! You can now log in.');
         }
     }
 
@@ -184,18 +168,7 @@
         speech.lang = 'en-US'; // Set the language, adjust if needed
         window.speechSynthesis.speak(speech);
     }
-
-    // Voice toggle button functionality
-    voiceToggleButton.addEventListener('click', () => {
-        voiceEnabled = !voiceEnabled;
-        voiceStatusText.textContent = voiceEnabled ? 'Voice On' : 'Voice Off';
-        voiceToggleButton.style.backgroundColor = voiceEnabled ? '#28a745' : '#dc3545'; // Green for on, red for off
-        if (voiceEnabled) {
-            speakText('Voice is now enabled.');
-        }
-    });
     </script>
-
     <style>
     /* Preloader */
     #preloader {
@@ -240,14 +213,14 @@
     }
 
     .form-box {
-        background-color: rgba(255,255, 255, 0.9);
+        background-color: rgba(255, 255, 255, 0.9);
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         text-align: center;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="email"], input[type="password"] {
         width: 100%;
         padding: 10px;
         margin: 10px 0;
@@ -255,9 +228,12 @@
         border-radius: 5px;
     }
 
+    input[type="checkbox"] {
+        margin-right: 10px;
+    }
+
     button {
-        padding: 10px 20px;
-        border: none;
+        padding: 10px 20px;border: none;
         border-radius: 5px;
         background-color: #28a745;
         color: #fff;
@@ -325,29 +301,6 @@
         100% { transform: rotate(360deg); }
     }
 
-    /* Voice Toggle Button */
-    .voice-toggle {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #28a745;
-        border: none;
-        color: white;
-        padding: 10px 20px;
-        font-size: 16px;
-        cursor: pointer;
-        border-radius: 50px;
-        transition: background-color 0.3s ease;
-        animation: toggleColor 2s infinite alternate;
-    }
-
-    /* Keyframe for voice toggle color animation */
-    @keyframes toggleColor {
-        0% { background-color: #28a745; }
-        50% { background-color: #ffca28; }
-        100% { background-color: #dc3545; }
-    }
-
     /* Responsive */
     @media (max-width: 768px) {
         .modal-content {
@@ -356,11 +309,6 @@
 
         .form-box {
             width: 90%;
-        }
-
-        .voice-toggle {
-            bottom: 10px;
-            right: 10px;
         }
     }
     </style>
