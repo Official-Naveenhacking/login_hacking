@@ -50,11 +50,11 @@
 
     <!-- Voice Toggle Button -->
     <button id="voiceToggleButton" class="voice-toggle">
-        <span id="voiceStatusText">Voice On</span>
+        <img id="voiceIcon" src="https://img.icons8.com/ios-filled/50/ffffff/voice.png" alt="Voice Icon">
     </button>
 
     <script>
-    let voiceEnabled = true; // Track if voice is enabled
+    let voiceEnabled = true;
 
     window.onload = function () {
         const preloader = document.getElementById('preloader');
@@ -66,6 +66,18 @@
         if (voiceEnabled) {
             speakText("Welcome to the login and registration page. Please log in or register.");
         }
+
+        // Background slideshow
+        const images = [
+            'https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg',
+            'https://www.w3schools.com/w3images/fjords.jpg',
+            'https://www.w3schools.com/w3images/lights.jpg'
+        ];
+        let currentImageIndex = 0;
+        setInterval(() => {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.body.style.backgroundImage = `url(${images[currentImageIndex]})`;
+        }, 3000);
     }
 
     const form = document.getElementById('authForm');
@@ -76,12 +88,7 @@
     const successMessage = document.getElementById('successMessage');
     const deleteUserBtn = document.getElementById('deleteUserBtn');
     const voiceToggleButton = document.getElementById('voiceToggleButton');
-    const voiceStatusText = document.getElementById('voiceStatusText');
-
-    // Custom alert modal elements
-    const customAlertModal = document.getElementById('customAlertModal');
-    const customAlertMessage = document.getElementById('customAlertMessage');
-    const customAlertOkButton = document.getElementById('customAlertOkButton');
+    const voiceIcon = document.getElementById('voiceIcon');
 
     let isLoginForm = true;
 
@@ -98,13 +105,11 @@
         const password = document.getElementById('password').value;
         const termsCheckbox = document.getElementById('termsCheckbox').checked;
 
-        // Verify Gmail ID
         if (!validateGmail(username)) {
             showCustomAlert("Please enter a valid Gmail ID");
             return;
         }
 
-        // Check if terms are accepted
         if (!termsCheckbox) {
             showCustomAlert("You must agree to the terms and conditions");
             return;
@@ -133,44 +138,19 @@
         }
     });
 
-    function loginUser(username, password) {
-        const user = JSON.parse(localStorage.getItem(username));
-        if (user && user.password === password) {
-            showSuccessMessage('Login successful!', true); // Redirect after login
-            if (voiceEnabled) {
-                speakText('Login successful, please wait. You will be redirected shortly!');
-            }
-        } else {
-            showCustomAlert('Invalid username or password');
-            if (voiceEnabled) {
-                speakText('Invalid username and password. Please enter the correct password.');
-            }
+    voiceToggleButton.addEventListener('click', () => {
+        voiceEnabled = !voiceEnabled;
+        voiceIcon.src = voiceEnabled ? 'https://img.icons8.com/ios-filled/50/ffffff/voice.png' : 'https://img.icons8.com/ios-filled/50/ffffff/mute.png';
+        if (voiceEnabled) {
+            speakText('Voice is now enabled.');
         }
-    }
+    });
 
-    function registerUser(username, password) {
-        if (localStorage.getItem(username)) {
-            showCustomAlert('User already exists!');
-            if (voiceEnabled) {
-                speakText('User already registered. Please delete the account.');
-            }
-        } else {
-            const user = { username, password };
-            localStorage.setItem(username, JSON.stringify(user));
-            showSuccessMessage('Registration successful!', false); // No redirect after registration
-            if (voiceEnabled) {
-                speakText('Registration successful. You can now log in directly!');
-            }
-        }
-    }
-
-    // Validate Gmail ID
     function validateGmail(email) {
         const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
         return gmailRegex.test(email);
     }
 
-    // Custom Alert Function
     function showCustomAlert(message) {
         customAlertMessage.textContent = message;
         customAlertModal.style.display = 'flex';
@@ -180,43 +160,11 @@
         });
     }
 
-    function showSuccessMessage(message, redirect = true) {
-        successMessage.textContent = message;
-        successModal.style.display = 'flex';
-
-        if (redirect) {
-            successMessage.textContent = "Login successful! Please wait...";
-            document.getElementById('spinner').style.display = 'block';
-
-            setTimeout(() => {
-                document.getElementById('spinner').style.display = 'none';
-                successModal.style.display = 'none';
-                window.location.href = 'https://www.example.com'; // Replace with your redirection URL
-            }, 10000); // 10 seconds delay for login
-        } else {
-            // Close modal after 3 seconds for registration success
-            setTimeout(() => {
-                successModal.style.display = 'none';
-            }, 3000); // 3 seconds delay for registration
-        }
-    }
-
-    // Web Speech API - Speak Function
     function speakText(text) {
         const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = 'en-US'; // Set the language, adjust if needed
+        speech.lang = 'en-US';
         window.speechSynthesis.speak(speech);
     }
-
-    // Voice toggle button functionality
-    voiceToggleButton.addEventListener('click', () => {
-        voiceEnabled = !voiceEnabled;
-        voiceStatusText.textContent = voiceEnabled ? 'Voice On' : 'Voice Off';
-        voiceToggleButton.style.backgroundColor = voiceEnabled ? '#28a745' : '#dc3545'; // Green for on, red for off
-        if (voiceEnabled) {
-            speakText('Voice is now enabled.');
-        }
-    });
     </script>
 
     <style>
@@ -232,19 +180,18 @@
         animation: fadeOut 2s forwards;
     }
 
-    /* Preloader animation */
     @keyframes fadeOut {
         100% { opacity: 0; visibility: hidden; }
     }
 
-    /* Background image slideshow */
     body {
-        background: url('https://i.pinimg.com/originals/d8/42/30/d84230b86388b80d3989f14b3631ba49.jpg') no-repeat center center/cover;
+        background-size: cover;
+        background-position: center;
         height: 100vh;
         font-family: Arial, sans-serif;
+        transition: background-image 1s ease-in-out;
     }
 
-    /* Form container */
     .container {
         display: flex;
         justify-content: center;
@@ -252,7 +199,6 @@
         height: 100%;
     }
 
-    /* Form box styling */
     .form-box {
         background: rgba(255, 255, 255, 0.9);
         padding: 2rem;
@@ -267,8 +213,7 @@
         margin-bottom: 1rem;
     }
 
-    input[type="email"],
-    input[type="password"] {
+    input[type="email"], input[type="password"] {
         width: 100%;
         padding: 0.75rem;
         border-radius: 5px;
@@ -290,6 +235,7 @@
         cursor: pointer;
         margin-top: 1rem;
         width: 100%;
+        transition: background-color 0.5s ease;
     }
 
     button:hover {
@@ -305,7 +251,6 @@
         background-color: #c82333;
     }
 
-    /* Success modal styling */
     #successModal, #customAlertModal {
         display: none;
         position: fixed;
@@ -341,18 +286,21 @@
         100% { transform: rotate(360deg); }
     }
 
-    /* Voice toggle button */
     .voice-toggle {
         position: fixed;
-        bottom: 1rem;
+        top: 1rem;
         right: 1rem;
-        padding: 0.75rem;
+        padding: 1rem;
         border-radius: 50%;
         background-color: #28a745;
-        color: white;
         border: none;
-        font-size: 1rem;
         cursor: pointer;
+        transition: background-color 0.5s ease;
+    }
+
+    .voice-toggle img {
+        width: 30px;
+        height: 30px;
     }
 
     .voice-toggle:hover {
